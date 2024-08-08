@@ -1,0 +1,204 @@
+openapi: 3.0.0
+info:
+  title: Redirectt API
+  version: 1.0.0
+  description: API for creating and retrieving dynamic links.
+
+servers:
+  - url: https://redirectt.to/api/v1
+    description: Main API server/
+
+paths:
+  /links:
+    post:
+      summary: Create a new dynamic link
+      operationId: createDynamicLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                link:
+                  type: string
+                  format: uri
+                  description: The long URL that will be returned when you retrieve the link
+                projectDomain:
+                  type: string
+                  description: The project domain for the link. Either the subdomain or your custom domain without the protocol.
+                metaData:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      description: Title for the link
+                    description:
+                      type: string
+                      description: Description for the link
+                    image:
+                      type: string
+                      format: uri
+                      description: Image URL for the link
+                  description: Metadata for the link
+                androidReferrer:
+                  type: string
+                  description: Android referrer for the link (optional)
+              required:
+                - link
+                - projectDomain
+      responses:
+        "201":
+          description: Link successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  linkId:
+                    type: string
+                    description: ID of the created link
+                  url:
+                    type: string
+                    format: uri
+                    description: Shortened url for the link. Either composed of your custom domain and an alias or the subdomain and an alias.
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        "402":
+          description: Payment required (free links limit reached)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        "404":
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+    get:
+      summary: Retrieve a dynamic link
+      operationId: getDynamicLink
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: alias
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved the link
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    description: Complete link
+        "400":
+          description: Missing domain or alias
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        "401":
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        "404":
+          description: Link not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+    CreateDynamicLinkRequest:
+      type: object
+      properties:
+        link:
+          type: string
+          format: uri
+        projectDomain:
+          type: string
+        metaData:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            image:
+              type: string
+              format: uri
+        androidReferrer:
+          type: string
+      required:
+        - link
+        - projectDomain
+
+    GetDynamicLinkRequest:
+      type: object
+      properties:
+        domain:
+          type: string
+        alias:
+          type: string
+      required:
+        - domain
+        - alias
