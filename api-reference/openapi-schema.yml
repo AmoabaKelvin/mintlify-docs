@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
-  title: Redirectt API
+  title: Directt.to API
   version: 1.0.0
   description: API for creating and retrieving dynamic links.
 
 servers:
-  - url: https://redirectt.to/api/v1
+  - url: https://directt.to/api/v1
     description: Main API server/
 
 paths:
